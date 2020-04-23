@@ -35,8 +35,8 @@ Module.directive('dateTimeAppend', function () {
   };
 });
 
-Module.directive('dateTime', ['$compile', '$document', '$filter', 'dateTimeConfig', '$parse', 'datePickerUtils',
-                function ($compile, $document, $filter, dateTimeConfig, $parse, datePickerUtils) {
+Module.directive('dateTime', ['$compile', '$document', '$filter', 'dateTimeConfig', '$parse', 'datePickerUtils', 'moment',
+                function ($compile, $document, $filter, dateTimeConfig, $parse, datePickerUtils, moment) {
   var body = $document.find('body');
   var dateFilter = $filter('date');
 
@@ -65,7 +65,17 @@ Module.directive('dateTime', ['$compile', '$document', '$filter', 'dateTimeConfi
         return dateFilter(value, format);
       }
 
-      /*
+      function clear() {
+          if (picker) {
+            picker.remove();
+            picker = null;
+          }
+          if (container) {
+            container.remove();
+            container = null;
+          }
+        }
+      
       function parser(viewValue) {
         if(viewValue.length === format.length) {
           var date = moment(viewValue, datePickerUtils.toMomentFormat(format));
@@ -77,13 +87,13 @@ Module.directive('dateTime', ['$compile', '$document', '$filter', 'dateTimeConfi
         }
         return undefined;
       }
-      */
+      /*
       function parser(viewValue) {
         if(viewValue.length === format.length) {
           return viewValue;
         }
         return undefined;
-      }
+      }*/
 
       ngModel.$formatters.push(formatter);
       ngModel.$parsers.unshift(parser);
@@ -128,16 +138,7 @@ Module.directive('dateTime', ['$compile', '$document', '$filter', 'dateTimeConfi
         }
       }
 
-      function clear() {
-        if (picker) {
-          picker.remove();
-          picker = null;
-        }
-        if (container) {
-          container.remove();
-          container = null;
-        }
-      }
+      
 
       function showPicker() {
         if (picker) {
