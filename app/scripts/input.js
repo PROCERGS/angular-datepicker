@@ -45,6 +45,7 @@ Module.directive('dateTime', ['$compile', '$document', '$filter', 'dateTimeConfi
     scope:true,
     link: function (scope, element, attrs, ngModel) {
       var format = attrs.format || dateTimeConfig.format;
+      scope.format = format;
       var parentForm = element.inheritedData('$formController');
       var views = $parse(attrs.views)(scope) || dateTimeConfig.views.concat();
       var view = attrs.view || views[0];

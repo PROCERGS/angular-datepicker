@@ -1,7 +1,7 @@
 'use strict';
 (function(angular){
 /* global _ */
-var Module = angular.module('datePicker', []);
+var Module = angular.module('datePicker', ['angularMoment']);
 
 Module.constant('datePickerConfig', {
   template: 'templates/datepicker.html',
@@ -26,7 +26,7 @@ Module.filter('time', function () {
   };
 });
 
-Module.directive('datePicker', ['datePickerConfig', 'datePickerUtils', function datePickerDirective(datePickerConfig, datePickerUtils) {
+Module.directive('datePicker', ['datePickerConfig', 'datePickerUtils', 'moment', function datePickerDirective(datePickerConfig, datePickerUtils, moment) {
 
   //noinspection JSUnusedLocalSymbols
   return {
@@ -41,8 +41,25 @@ Module.directive('datePicker', ['datePickerConfig', 'datePickerUtils', function 
     link: function (scope, element, attrs, ngModel) {
 
       var arrowClick = false;
-
-      scope.date = new Date(scope.model || new Date());
+      var format = attrs.format || scope.$parent.format;
+      var tryParse = function(value) {
+    	  var dt;
+    	  if(format && value.length === format.length) {
+              var date = moment(value, datePickerUtils.toMomentFormat(format));
+              if(date.isValid()) {                
+            	  dt = new Date(date.toISOString());
+              } else {
+            	  dt = new Date(value);  
+              }
+            } else {
+            	dt = new Date(value);  	
+            }
+    	 if (!isNaN(dt)) {
+    		 return dt;
+    	 }
+    	 return null;
+      };
+      scope.date = (tryParse(scope.model) || new Date());
       scope.views = datePickerConfig.views.concat();
       scope.view = attrs.view || datePickerConfig.view;
       scope.now = new Date();
@@ -158,7 +175,7 @@ Module.directive('datePicker', ['datePickerConfig', 'datePickerUtils', function 
         var view = scope.view;
 
         if (scope.model && !arrowClick) {
-          scope.date = new Date(scope.model);
+          scope.date = tryParse(scope.model);
           arrowClick = false;
         }
         var date = scope.date;
@@ -242,23 +259,23 @@ Module.directive('datePicker', ['datePickerConfig', 'datePickerUtils', function 
       };
 
       scope.isSameMonth = function (date) {
-        return datePickerUtils.isSameMonth(scope.model, date);
+        return datePickerUtils.isSameMonth(tryParse(scope.model), date);
       };
 
       scope.isSameYear = function (date) {
-        return datePickerUtils.isSameYear(scope.model, date);
+        return datePickerUtils.isSameYear(tryParse(scope.model), date);
       };
 
       scope.isSameDay = function (date) {
-        return datePickerUtils.isSameDay(scope.model, date);
+        return datePickerUtils.isSameDay(tryParse(scope.model), date);
       };
 
       scope.isSameHour = function (date) {
-        return datePickerUtils.isSameHour(scope.model, date);
+        return datePickerUtils.isSameHour(tryParse(scope.model), date);
       };
 
       scope.isSameMinutes = function (date) {
-        return datePickerUtils.isSameMinutes(scope.model, date);
+        return datePickerUtils.isSameMinutes(tryParse(scope.model), date);
       };
 
       scope.isNow = function (date) {
@@ -524,6 +541,7 @@ Module.directive('dateTime', ['$compile', '$document', '$filter', 'dateTimeConfi
     scope:true,
     link: function (scope, element, attrs, ngModel) {
       var format = attrs.format || dateTimeConfig.format;
+      scope.format = format;
       var parentForm = element.inheritedData('$formController');
       var views = $parse(attrs.views)(scope) || dateTimeConfig.views.concat();
       var view = attrs.view || views[0];
