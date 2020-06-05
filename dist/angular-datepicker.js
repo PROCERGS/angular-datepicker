@@ -44,7 +44,7 @@ Module.directive('datePicker', ['datePickerConfig', 'datePickerUtils', 'moment',
       var format = attrs.format || scope.$parent.format;
       var tryParse = function(value) {
     	  var dt;
-    	  if(format && value !== undefined && value.length === format.length) {
+    	  if(format != null && value != null && value.length == format.length) {
               var date = moment(value, datePickerUtils.toMomentFormat(format));
               if(date.isValid()) {                
             	  dt = new Date(date.toISOString());
