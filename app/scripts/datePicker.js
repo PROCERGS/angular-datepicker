@@ -52,7 +52,11 @@ Module.directive('datePicker', ['datePickerConfig', 'datePickerUtils', 'moment',
             	  dt = new Date(value);  
               }
             } else {
-            	dt = new Date();  	
+            	if (value != null) {
+            		dt = new Date(value);
+            	} else {
+            		dt = new Date();	
+            	}            	  	
             }
     	 if (!isNaN(dt)) {
     		 return dt;
